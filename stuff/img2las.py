@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import cv2
-import numpy as np
-from matplotlib import pyplot as plt
 import argparse
+import os
 import random
+import sys
+
+import cv2
+from matplotlib import pyplot as plt
+
 # D:\CCST\Software\img2lidar\img\ebablog.png -x 807000 -y 9710000 -zf (z>0) -xr 0.5 -yr 0.5 -zr 0.20 -mz 100 -bz 100 -bxy 1 -d 5
 parser = argparse.ArgumentParser(description="Convert image to LiDAR (xyz) file.")
 parser.add_argument("inputfname", type=str, 
@@ -35,7 +36,7 @@ parser.add_argument("-v","--verbose",type = int, help = "Show intermediate messa
 args = parser.parse_args()
 
 if not os.path.exists(args.inputfname):
-    print "ERROR: Input file doesn't exists: {0}.\r\n".format(args.inputfname)
+    print("ERROR: Input file doesn't exists: {0}.\r\n".format(args.inputfname))
     parser.print_help()
     sys.exit(1)
 

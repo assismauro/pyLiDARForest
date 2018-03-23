@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
-import numpy as np
+import colorsys
+
 import cv2
 import numpy as np
-import colorsys
+import pandas as pd
+
 
 class EarthTones(object):
 
@@ -23,13 +24,13 @@ class EarthTones(object):
     def Transition(self, value, maximum, start_point, end_point):
         return start_point + (end_point - start_point)*value/maximum
 
-    def Transition3(self, (s1, s2, s3), (e1, e2, e3)):
+    def Transition3(self, s1, s2, s3, e1, e2, e3):
         r1= self.Transition(0.5, 213, s1, e1)
         r2= self.Transition(0.5, 213, s2, e2)
         r3= self.Transition(0.5, 213, s3, e3)
         return (r1, r2, r3)
 
-    def Interpolate(self, (s1, s2, s3), (e1, e2, e3)):
+    def Interpolate(self, s1, s2, s3, e1, e2, e3):
         transition=self.Transition3(colorsys.rgb_to_hsv(s1,s2,s3),colorsys.rgb_to_hsv(e1,e2,e3))
         return colorsys.hsv_to_rgb(transition[0],transition[1],transition[2])
     

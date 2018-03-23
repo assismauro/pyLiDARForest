@@ -1,7 +1,36 @@
-python metrics.py G:\TRANSECTS\LAZ\NP_T-0145.laz -op G:\TRANSECTS\LAZ\metrics\ -s 50
-python metrics.py G:\TRANSECTS\LAZ\NP_T-0190.laz -op G:\TRANSECTS\LAZ\metrics\ -s 50
-python metrics.py G:\TRANSECTS\LAZ\NP_T-0276.laz -op G:\TRANSECTS\LAZ\metrics\ -s 50
-python metrics.py G:\TRANSECTS\LAZ\NP_T-0317.laz -op G:\TRANSECTS\LAZ\metrics\ -s 50
-python metrics.py G:\TRANSECTS\LAZ\NP_T-0407.laz -op G:\TRANSECTS\LAZ\metrics\ -s 50
-python metrics.py G:\TRANSECTS\LAZ\NP_T-0408.laz -op G:\TRANSECTS\LAZ\metrics\ -s 50
-python metrics.py G:\TRANSECTS\LAZ\NP_T-0409.laz -op G:\TRANSECTS\LAZ\metrics\ -s 50
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0133.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0145.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0190.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0192.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0193.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0276.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0309.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0317.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0321.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0325.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0326.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0333.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0334.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0338.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0347.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0408.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0409.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0424.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0473.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0506.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0603.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0629.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0632.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0633.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0635.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0637.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0638.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0639.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0645.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-1016.laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-1021.Laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-1012.Laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-1013.Laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+REM python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-1014.Laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0001.Laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1
+python E:\mauro.assis\pyLiDARForest\metrics\metrics.py g:\transects\laz\NP_T-0002.Laz -df CSV -o G:\TRANSECTS\LAZ\metrics -s 50 -t 1

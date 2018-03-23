@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
+import collections
+import fnmatch
+import glob
 import os
+import subprocess
 import sys
 import traceback
-import glob
-import fnmatch
+
 import laspy
 import numpy as np
-import collections
-import subprocess
 import shapefile
-import shutil
-import tempfile
-import math
-import lidarutils
 from valParameters import valParameters
+
+import lidarutils
+
 
 class Validate(object):
     version = ''
@@ -26,6 +26,8 @@ class Validate(object):
     deletefiles = None
     validateok = []
     csvresults = None
+    pointsdensity = -1,
+    percentcellsbelowdensity = -1,
     activevalidations = []
         
     def __init__(self,inputfname, parameters):
@@ -41,14 +43,14 @@ class Validate(object):
                 os.mkdir(self.validatefilespath)
             else:
                 if self.deletefiles != None:
-                    self.DeleteFiles(self.validatefilespath,self.deletefiles) 
+                    self.DeleteFiles(self.validatefilespath, self.deletefiles)
 
-    def GetLASInfoStr(self,header):
+    def GetLASInfoStr(self, fname, header):
         s='{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},'.format(
-            header.guid,
+            os.path.basename(fname),
             header.file_source_id,
             header.global_encoding,
-            header.project_id,
+            '' if fname.upper().endswith('LAZ') else header.project_id,
             header.version,
             header.date,
             header.system_id.strip('\x00'),
@@ -61,13 +63,18 @@ class Validate(object):
         for i in range(len(header.point_return_count)):
             s+=str(header.point_return_count[i])+','
         s+=str(self.areatransect)
+
         return s
 
     def Close(self):
         if self.csvresults != None:
             try:
                 with open(self.csvresults,'a') as csv:
-                    line=self.inputfname+','+self.GetLASInfoStr(self.inFile.header)+','
+                    line = '{0},{1},{2},{3},'.format(self.GetLASInfoStr(self.inputfname, self.inFile.header),
+                                                     self.pointsdensity, self.percentcellsbelowdensity, \
+                                                     np.sum(self.inFile.waveform_packet_size) / 2 if hasattr(
+                                                         self.inFile, 'waveform_packet_size') else '')
+
                     for i in range(0,len(self.validateok)):
                         line+=str(self.validateok[i])+','
                     csv.write('{0},{1}\n'.format(line[:-1],self._errorMessages.replace('\r',' ').replace('\n',' ').replace(",","")))                    
@@ -96,14 +103,13 @@ class Validate(object):
     @staticmethod
     def CreateCsv(return_point_count,csvresults,activevalidations):
         csv=open(csvresults,'w')
-        line='LAS_file,guid,file_source_id,global_encoding,project_id,version,date,system_id,software_id,point_records_count,'+\
-             'scale_X,scale_Y,scale_Z,offset_X,offset_Y,offset_Z,min_X,min_Y,min_Z,max_X,max_Y,max_Z,'
+        line = 'LAS_file,file_source_id,global_encoding,project_id,version,date,system_id,software_id,point_records_count,' + \
+               'scale_X,scale_Y,scale_Z,offset_X,offset_Y,offset_Z,min_X,min_Y,min_Z,max_X,max_Y,max_Z,'
         for i in range(return_point_count):
             line+='point_return_count_{0},'.format(i+1)
-        line+='areatransect,'
-        for i in range(len(activevalidations)):
-            line+=str(activevalidations[i])+','
-        csv.write('{0}error_messages\n'.format(line))
+        line += 'areatransect,points_density,cells_below_min_density,number_of_fwf_recs,' + ','.join(
+            [str(i) for i in activevalidations])
+        csv.write('{0},error_messages\n'.format(line))
         csv.close()
 
     @staticmethod
@@ -189,11 +195,15 @@ class Validate(object):
         if Validate.verbose > 0: 
             print
             print('Check global point density')
-        cloudpointsdensity = self.inFile.header.point_records_count / self.areatransect
-        if Validate.verbose > 0:        
-            print('Cloud points density: {0}, Minimum expected points density: {1}'.format(cloudpointsdensity,Validate.minimumpointsdensity))
-        if(cloudpointsdensity < float(Validate.minimumpointsdensity)):
-            self.TestFail('Points density below minimum: is {0} and should be at least {1}\r\n'.format(cloudpointsdensity,Validate.minimumpointsdensity))
+        self.pointsdensity = self.inFile.header.point_records_count / self.areatransect
+
+        if Validate.verbose > 0:
+            print('Cloud points density: {0}, Minimum expected points density: {1}'.format(self.pointsdensity,
+                                                                                           Validate.minimumpointsdensity))
+        if (self.pointsdensity < float(Validate.minimumpointsdensity)):
+            self.TestFail(
+                'Points density below minimum: is {0} and should be at least {1}\r\n'.format(self.pointsdensity,
+                                                                                             Validate.minimumpointsdensity))
             return 1
         else:
             self.TestOk()
@@ -266,6 +276,9 @@ class Validate(object):
 
     def CheckXtYtZt(self):
         if(float(self.inFile.header.version) >= 1.3):
+            if not hasattr(self.inFile, 'x_t'):
+                self.validateok += [-1]
+                return 0
             errorMsg=''
             if Validate.verbose > 0:                
                 print('Check if X(t),Y(t),Z(t) contains only valid values')
@@ -303,16 +316,17 @@ class Validate(object):
             fstr=open(fName,'r').read().replace('\r','').replace('\n','')
             fstr=fstr[fstr.index('Density less than minimum specification'):]
             fstr=fstr[fstr.index('%\">'):]
-            percentualbelow=float(fstr[3:fstr.index('<')])
-        except Exception, e:
+            self.percentcellsbelowdensity = float(fstr[3:fstr.index('<')])
+        except:
             self.validateok+=[-1]
             if self.verbose > 0:
                 print('Impossible to check density value in {0} '.format(fName))
             return 0
         if Validate.verbose > 0:
-            print('Cells with percent below minimum are {0}%'.format(percentualbelow))
-        if percentualbelow > self.maxpercentcellsbelowdensity:
-            self.TestFail('Cells with density below minimum: is {0} and should be lower than {1}\r\n'.format(percentualbelow,Validate.maxpercentcellsbelowdensity))
+            print('Cells with percent below minimum are {0}%'.format(self.percentcellsbelowdensity))
+        if self.percentcellsbelowdensity > self.maxpercentcellsbelowdensity:
+            self.TestFail('Cells with density below minimum: is {0} and should be lower than {1}\r\n'.format(
+                self.percentcellsbelowdensity, Validate.maxpercentcellsbelowdensity))
             return 1
         else:
             self.TestOk()
@@ -327,11 +341,10 @@ def main():
     Validate.displayheader = False
     Validate.cellsize = 1
     Validate.maxpercentcellsbelowdensity = 20
-    Validate.validatefilespath = r'e:\temp'
-#    Validate.deletefiles = True
+    Validate.validatefilespath = r'c:\temp'
+    Validate.deletefiles = True
     Validate.csvresults = 'results_test.csv'
-#    Validate.activevalidations=(1,2,3,4,5,6,7,8)
-    Validate.activevalidations=(1,2,4)
+    Validate.activevalidations = (1, 2, 3, 4, 5, 6, 7, 8)
     Validate.verbose = 1
 
     if (Validate.csvresults != None):

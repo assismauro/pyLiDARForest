@@ -3,6 +3,7 @@ import sys
 
 import psycopg2 as pg
 
+
 class dbutils(object):
     """Implements a Python interface to LASTools command line tools"""
 
@@ -18,8 +19,8 @@ class dbutils(object):
         self.conn=None
         try:
             self.conn=pg.connect(host=self.server,user=self.user,password=self.pwd,database=self.database)
-        except pg.Error, e:
-            print e.diag.message_primary
+        except Exception as e:
+            print(e.diag.message_primary)
 
     def validatefieldname(self,fieldname):
         fieldname=fieldname.lower()
@@ -34,8 +35,11 @@ class dbutils(object):
         return fieldname
     
     def initsqlvalidfieldnames(self,fields):
-        for i in range(len(fields)):
-            self.sqlvalidfieldnames.append(self.validatefieldname(fields[i]))
+        for field in fields:
+            if len(field) != 0:
+                if not field[0].isalpha():
+                    field = "c" + field;
+                self.sqlvalidfieldnames.append(self.validatefieldname(field))
 
     def getTableSchema(self, tablename, schema="public"):
         """
@@ -100,8 +104,8 @@ class dbutils(object):
             result = cur.fetchone()
             cur.close()
             return result[0]
-        except pg.Error, e:
-            print e.diag.message_primary
+        except Exception as e:
+            print(e.diag.message_primary)
             if not ignoreexcept:
                 raise
 
@@ -111,13 +115,13 @@ class dbutils(object):
             count=cur.execute(sql)
             if autocommit:
                 self.conn.commit()
-            return cur.rowcount
-        except pg.Error, e:
-            print e.diag.message_primary
+            return cur.rowcount, cur
+        except Exception as e:
+            print(e.diag.message_primary)
             if not ignoreexcept:
                 raise
         except Exception as e:
-            print str(e)
+            print(str(e))
             if not ignoreexcept:
                 raise
 
@@ -128,8 +132,8 @@ class dbutils(object):
             result = cur.fetchall()
             cur.close()
             return result
-        except pg.Error, e:
-            print e.diag.message_primary
+        except Exception as e:
+            print(e.diag.message_primary)
             if not ignoreexcept:
                 raise
             else:
@@ -153,8 +157,8 @@ class dbutils(object):
                 __sof__(row)
                 row = cur.fetchone()
             cur.close()
-        except pg.Error, e:
-            print e.diag.message_primary
+        except Exception as e:
+            print(e.diag.message_primary)
             if not ignoreexcept:
                 raise
 
@@ -208,7 +212,7 @@ ALTER SEQUENCE public.{0}_idimport_seq
 '''.format(tablename,self.user),True)
 
     def getfielddatatype(self,field,data,skipfields=0,nullvalue=None):
-        typsel = 'STR'
+        typsel = 'null'
         types = [(int,'INT'),
                  (float,'FLOAT'),
                  (str,'STR')]
@@ -218,21 +222,28 @@ ALTER SEQUENCE public.{0}_idimport_seq
             for typ, typestr in types:
                 try:
                     typ(rec[field])
-                    if (typsel == 'FLOAT') and (typestr == 'INT'):
+                    if (typestr == 'FLOAT') and (typsel == 'INT'):
                         typsel = 'FLOAT'
-                    if typsel == 'STR':
-                        return 'character varying(50) COLLATE pg_catalog."default"'
-                    else:
                         break
-                except ValueError:
+                    else:
+                        if (typestr == 'INT') and (typsel == 'FLOAT'):
+                            break
+                        else:
+                            if typestr == 'STR':
+                                return 'character varying(1000) COLLATE pg_catalog."default"'
+                            else:
+                                typsel = typestr
+                                break
+                except:
                     continue
-        return 'character varying(50) COLLATE pg_catalog."default"' if typsel == 'STR' else typestr
+        return 'character varying(1000) COLLATE pg_catalog."default"' if typsel == 'null' else typsel
 
     def createtable(self,tablename,fields,data,skipfields=0,nullvalue=None,createfilenamefield=False):
         self.droptable(tablename,True)
         self.dropsequence(tablename,True)
         self.createsequence(tablename)
-        fieldssql="idimport integer NOT NULL DEFAULT nextval('{0}_idimport_seq'::regclass),\r\n".format(tablename)+("" if not createfilenamefield else 'filename character varying(32),')+'\r\n'
+        fieldssql = "idimport integer NOT NULL DEFAULT nextval('{0}_idimport_seq'::regclass),\r\n".format(tablename) + (
+            "" if not createfilenamefield else 'filename character varying(64),') + '\r\n'
         for i in range(len(fields)):
             fieldssql+='    {0} {1},\r\n'.format(self.sqlvalidfieldnames[i],self.getfielddatatype(fields[i],data,skipfields,nullvalue))
         createtablesql='''CREATE TABLE public.{0} (
@@ -271,7 +282,7 @@ VALUES ('''.format(tablename,fieldssql[:-1])
                 self.execute(sql)
             except:
                 e = sys.exc_info()[0]
-                print "Error {0} in csv file line {1}. SQL: {2}".format(e,count,sql)
+                print("Error {0} in csv file line {1}. SQL: {2}".format(e, count, sql))
                 raise
             count=count+1
             if (count % 1000) == 0:

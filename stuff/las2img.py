@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import cv2
-import numpy as np
-from matplotlib import pyplot as plt
 import argparse
-import laspy
-import pandas as pd
-from scipy import ndimage
+import os
+import sys
+
 import EarthTones
+import cv2
+import laspy
+import numpy as np
+import pandas as pd
+
 
 class las2img(object):
 
@@ -41,7 +41,7 @@ class las2img(object):
         parser.add_argument("-f","--imagefformat", help=" 0: tiff, 1: jpeg, 2. png",type=int, default=0) 
         parser.add_argument("-i","--intensity", help="Use intensity to color figure. If false (default), use elevation.", action='store_true', default=False)
         parser.add_argument("-t","--intensitythreshold", help="Maximum intensity value to be considered.", type =int, default=-1)
-        parser.add_argument("-v","--verbose",help = "Show intermediate messages.")
+        parser.add_argument("-v", "--verbose", type=int, help="Show intermediate messages.", default=0)
         args=parser.parse_args()
 
         if not os.path.exists(args.inputfname):
@@ -51,7 +51,8 @@ class las2img(object):
         return args
 
     def update_progress(self,progress):
-        print '\r[{0}{1}] {2}%'.format('#'*int(progress/10+1),'.'*int(10-progress/10), int(progress)),
+        print('\r[{0}{1}] {2}%'.format('#' * int(progress / 10 + 1), '.' * int(10 - progress / 10), int(progress)),
+              end='')
 
     def Execute(self,scale,intensity,intensitythreshold):
         imagewidth=int(scale*(np.amax(self.inFile.X) - np.amin(self.inFile.X)))
@@ -119,7 +120,7 @@ if __name__ == "__main__":
         args=las2img.ProcessCmdLine()
     except Exception as e:
         print("Unexpected error:", sys.exc_info()[0])
-        print e
+        print(e)
         sys.exit(1)
         
     l2i = las2img(args.inputfname,args.palette,args.verbose)

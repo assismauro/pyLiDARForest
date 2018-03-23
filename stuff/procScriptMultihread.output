@@ -1,8 +1,0 @@
-Command:  las2las -i H:\TRANSECTS\T-0347\NP_T-0347_FWF_LAS\NP_T-0347_FWF.las -rescale 0.01 0.01 0.01 -remove_all_vlrs -epsg 31980  -set_point_type 1 -odir G:\TRANSECTS\LAZ
- WARNING: number of samples for wave packet descr 4 is zero
-WARNING: number of samples for wave packet descr 5 is zero
-WARNING: number of samples for wave packet descr 6 is zero
-WARNING: number of samples for wave packet descr 7 is zero
-WARNING: number of samples for wave packet descr 8 is zero
-WARNING: number of samples for wave packet descr 9 is zero
-WARNING: number of samples for wave packet descr 10 is zero

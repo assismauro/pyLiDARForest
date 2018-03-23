@@ -1,16 +1,16 @@
 
 # -*- coding: utf-8 -*-
-import os
-import traceback
-import glob
 import argparse
-from argparse import RawTextHelpFormatter
-import sys
-import subprocess
-
 import fnmatch
+import glob
+import logging
+import os
+import subprocess
+import sys
 import time
+from argparse import RawTextHelpFormatter
 from multiprocessing import Pool, Process
+
 
 def Header():
     print('Multithread exec v0.9')
@@ -27,12 +27,14 @@ def ParseCmdLine():
     parser.add_argument('-ifn','--inputfname',help='File mask to be processed. If is a file name with txt extension, it will consider as a txt file containing a file names list to be processed.', type=str, default='')
     parser.add_argument('-c','--processorcores', type=int, help='Processor cores to use.', default = 1)
     parser.add_argument('-o','--otherparams',type=str, help='complementary parameters.')
+    parser.add_argument('-s', '--subdirs', type=int, help='get files in subdirectory.', default=1)
     parser.add_argument('-m','--commandonly', type=int, help='Just shows commands, without run.', default = 0)
     parser.add_argument("-v","--verbose",type=int, help = "Show intermediate messages.", default = 0)
+    parser.add_argument("-l", "--log", type=str, default=None, help="Logs to a file. Default 'None'.")
     try:
         return parser.parse_args()
     except:
-        print sys.exc_info()[0]
+        print(sys.exc_info()[0])
         raise
 
 def RunCommand(command, commandonly, verbose):
@@ -50,37 +52,43 @@ def RunCommand(command, commandonly, verbose):
                      stderr=subprocess.STDOUT)
         out, err = p.communicate()
     except:
-        f = open('procScriptMultiThread.err','a')
-        f.write(command)
-        f.close()
+        logging.error(command)
         return None, None
     return out, err
 
-def FindFiles(directory, pattern):
+
+def FindFiles(directory, pattern, subdirs):
     flist=[]
-    for root, dirs, files in os.walk(directory):
-        for filename in fnmatch.filter(files, pattern):
-            flist.append(os.path.join(root, filename))
+    if (subdirs):
+        for root, dirs, files in os.walk(directory):
+            for filename in fnmatch.filter(files, pattern):
+                flist.append(os.path.join(root, filename))
+    else:
+        flist = glob.glob(r"{0}\{1}".format(directory, pattern))
     return flist
 
 def ProcessFile(program,fname,options,verbose,batchProcess,commandonly):
     commandLine='{0}{1} {2} {3}'.format(('python ' if program.upper().endswith('.PY') > 0 else ''),program,fname,options if options != None else '')
     out,err = RunCommand(commandLine, commandonly, verbose)
     if verbose > 0:
-        f = open('procScriptMultihread.output','a')
-        f.write("Command: "+commandLine)
-        if out != None:
-            f.write("")
-            f.write(out)
-        if err != None:
-            f.write("Error: ")
-            f.write(err)
-        f.close()
         print(commandLine)
+        logging.info(commandLine)
+        if out != None:
+            if (verbose == 2) and (out.upper().find("ERROR") > 0):
+                print(out)
+
+            logging.info(out)
+        if err != None:
+            logging.error(out)
 
 if __name__ == '__main__':
     Header()
-    args=ParseCmdLine()   
+    args = ParseCmdLine()
+    if args.log:
+        logging.basicConfig(filename=args.log, level=logging.INFO)
+        logging.getLogger().addHandler(logging.StreamHandler())
+    else:
+        logging.basicConfig(level=logging.INFO)
     start = time.time()
     failcount=0
     files=[]
@@ -92,7 +100,7 @@ if __name__ == '__main__':
             files = f.readlines()
         else:
             path, filemask = os.path.split(args.inputfname)
-            files=FindFiles(path,filemask)
+            files = FindFiles(path, filemask, args.subdirs)
         if len(files) == 0:
             print('There''s no file to process.')
             sys.exit(1)

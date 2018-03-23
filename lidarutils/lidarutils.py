@@ -11,14 +11,15 @@
 # 52I212_plot10.las -tx 
 # 52I212_plot10.las -ty
 
+import argparse
+import math
 import os.path
 import time
-import argparse
-from argparse import RawTextHelpFormatter
-import numpy as np
-import math
-from laspy import file
 import warnings
+from argparse import RawTextHelpFormatter
+
+import numpy as np
+from laspy import file
 
 
 def saveCloud(fname, header, cloud):
@@ -61,7 +62,7 @@ Define task to be done.
         args = parser.parse_args()
     except Exception as e:
         print("Unexpected error:", sys.exc_info()[0])
-        print e
+        print(e)
         sys.exit(1)
     return args
 

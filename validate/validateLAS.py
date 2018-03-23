@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-import os
-import traceback
-import glob
 import argparse
-from argparse import RawTextHelpFormatter
+import os
 import sys
-
-import fnmatch
 import time
+import traceback
+from argparse import RawTextHelpFormatter
 from multiprocessing import Pool, Process
 
 from valParameters import valParameters
+
 from validate import Validate
-        
+
+
 def Header():
     print('LiDAR file checker v0.8')
     print
@@ -101,7 +100,7 @@ def ProcessFile(inputfname,lasversion,minimumpointsdensity,displayheader,cellsiz
             print("Error {0} opening file {1}".format(traceback.format_exc(),inputfname))
             os._exit(0)
 
-        failcount+=1
+        failCount += 1
                
     if Validate.verbose > 0:
         if failCount == 0:
@@ -118,7 +117,7 @@ if __name__ == '__main__':
     Header()
     args=ParseCmdLine()
     if args.selectedvalidations == None:
-        selectedvalidations='1,2,3,4,5,6,7'
+        selectedvalidations = '1,2,3,4,5,6,7,8'
     else:
         selectedvalidations=args.selectedvalidations
     activevalidations=map(int,selectedvalidations.split(','))

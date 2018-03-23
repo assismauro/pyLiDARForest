@@ -1,11 +1,23 @@
-python las2img.py h:\transects\T-0347\NP_T-0347_FWF_LAS\NP_T-0347_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
-python las2img.py h:\transects\T-0473\NP_T-0473_FWF_LAS\NP_T-0473_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
-python las2img.py h:\transects\T-0506\NP_T-0506_FWF_LAS\NP_T-0506_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
-python las2img.py h:\transects\T-0629\NP_T-0629_FWF_LAS\NP_T-0629_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
-python las2img.py h:\transects\T-0632\NP_T-0632_FWF_LAS\NP_T-0632_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
-python las2img.py h:\transects\T-0633\NP_T-0633_FWF_LAS\NP_T-0633_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
-python las2img.py h:\transects\T-0635\NP_T-0635_FWF_LAS\NP_T-0635_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
-python las2img.py h:\transects\T-0637\NP_T-0637_FWF_LAS\NP_T-0637_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
-python las2img.py h:\transects\T-0638\NP_T-0638_FWF_LAS\NP_T-0638_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
-python las2img.py h:\transects\T-0639\NP_T-0639_FWF_LAS\NP_T-0639_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
-python las2img.py h:\transects\T-0645\NP_T-0645_FWF_LAS\NP_T-0645_FWF.las H:\TRANSECTS\IMG -p 1 -f 2
+python las2img.py H:\QUARTO_LOTE\NP_T-0694_FWF\NP_T-0694_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0707_FWF\NP_T-0707_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0760_FWF\NP_T-0760_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0764_FWF\NP_T-0764_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0765_FWF\NP_T-0765_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0766_FWF\NP_T-0766_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0771_FWF\NP_T-0771_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0772_FWF\NP_T-0772_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0773_FWF\NP_T-0773_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0774_FWF\NP_T-0774_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0782_FWF\NP_T-0782_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0783_FWF\NP_T-0783_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0824_FWF\NP_T-0824_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0826_FWF\NP_T-0826_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0827_FWF\NP_T-0827_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0829_FWF\NP_T-0829_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0830_FWF\NP_T-0830_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0852_FWF\NP_T-0852_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0854_FWF\NP_T-0854_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0876_FWF\NP_T-0876_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0898_FWF\NP_T-0898_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-0995_FWF\NP_T-0995_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1
+python las2img.py H:\QUARTO_LOTE\NP_T-1007_FWF\NP_T-1007_FWF.las  h:\quarto_lote\img -p 1 -f 2 -v 1

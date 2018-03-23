@@ -1,29 +1,31 @@
 import os
-import shutil
 import subprocess
 from sys import platform as _platform
 
 class pyLASTools(object):
     """Implements a Python interface to LASTools command line tools"""
 
-    def __init__(self,lastoolspath,cores):
+    def __init__(self, lastoolspath, cores=1):
+        self.isamac = _platform == "darwin"
+
+        if not self.isamac and (lastoolspath == ""):
+            lastoolspath = r"c:\lastools\bin"
+
         self.lastoolspath = lastoolspath + ("" if lastoolspath.endswith(os.sep) else os.sep)
         self.cores=cores
 
     def runcommand(self,command,commandonly,verbose):
         cmd="{0}{1}".format(self.lastoolspath,command)
-        isamac = _platform == "darwin"
-        if isamac:
+        if self.isamac:
             command="wine "+cmd
         else:
             command=cmd
         print command
         if commandonly:
-            print(command)
-            return None, 
+            return None,
         if verbose > 0:
             print command
-        if isamac:
+        if self.isamac:
             p = subprocess.Popen(command,shell=True)
         else:
             p = subprocess.Popen(command,
@@ -55,8 +57,9 @@ class pyLASTools(object):
         self.runcommand(r"blast2dem -i {0} {1} -step {2} {3} -cores {4}".format(inputfname,"-o {0}".format(outputfname) if outputfname != "" else "",step,options,self.cores),commandonly,verbose)
 
     def lastile(self,inputfname,outputfname="",options="",commandonly=False,verbose=False):
-        self.runcommand(r"lastile -i {0} {1} {2} -cores {3}".format(\
-            inputfname,"-o {0}".format(outputfname) if outputfname != "" else "",options,self.cores),commandonly,verbose)
+        # cores = 1, it looks like there is a problem if we put more than 1 core in lastile
+        self.runcommand(r"lastile -i {0} {1} {2} -cores {3}".format( \
+            inputfname, "-o {0}".format(outputfname) if outputfname != "" else "", options, 1), commandonly, verbose)
 
     def lasthin(self,inputfname,outputfname="",options="",commandonly=False,verbose=False):
         self.runcommand(r"lasthin -i {0} {1} {2} -cores {3}".format(\
@@ -71,6 +74,10 @@ class pyLASTools(object):
 
     def lascanopy(self,inputfname,outputfname="",step=0.5,options="",
                   commandonly=False,verbose=False):
-        self.runcommand(r"lascanopy -i {0} {1} -step {2} {3} -cores {4}".format(inputfname,"-o {0}".format(outputfname) if outputfname != "" else "",step,options,self.cores),commandonly,verbose)
+        self.runcommand(r"lascanopy -i {0} {1} {2} {3} -cores {4}".format(inputfname, "-o {0}".format(
+            outputfname) if outputfname != "" else "", "-step {0}" if step > 0.0 else "", options, self.cores),
+                        commandonly, verbose)
 
-    
+    def lasinfo(self, inputfname, outputfname="", options="", commandonly=False, verbose=False):
+        return self.runcommand(r"lasinfo -i {0} {1} {2} -cores {3}".format(inputfname, "-o {0}".format(
+            outputfname) if outputfname != "" else "", options, self.cores), commandonly, verbose)

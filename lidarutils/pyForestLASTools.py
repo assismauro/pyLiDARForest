@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import os
 import glob
-import argparse
-from argparse import RawTextHelpFormatter
-import sys
-import subprocess
+import os
 import shutil
+
+from laspy import file
+
 import pyLASTools
 from pyLASTools import pyLASTools
 
@@ -24,12 +23,12 @@ class pyForestLASTools(object):
     chmsuffix = "_chm"
     dtmsuffix = "_dtm"
 
-    def __init__(self, inputfname, outputpath="", rootdir="", tempdir="", lastoolspath=r"c:\lastools\bin",
+    def __init__(self, inputfname, outputpath="", rootdir="", lastoolspath="",
                  commandonly=0, verbose=0, cores=1):
         self.inputfname = inputfname
-        self.outputpath = outputpath
+        self.outputpath = os.path.join(outputpath, "")
         self.originalfname = self.inputfname
-        self.tempdir = tempdir
+        self.tempdir = os.path.join(self.outputpath + "temp" + os.path.basename(self.originalfname).split(".")[0], "")
         self.cores = cores
         if rootdir == "":
             self.rootdir = os.path.dirname(inputfname) + os.sep
@@ -38,9 +37,6 @@ class pyForestLASTools(object):
         self.commandonly = commandonly
         self.verbose = verbose
         self.currentsuffix = ""
-        if (self.tempdir != "") and (self.commandonly == 0) and (self.tempdir != self.rootdir):
-            self.rmdir(self.tempdir)
-            self.mkdir(self.tempdir)
         self.pylastools = pyLASTools(lastoolspath, self.cores)
 
     def justfilename(self, fname):
@@ -50,13 +46,22 @@ class pyForestLASTools(object):
         for filename in glob.glob(filemask):
             os.remove(filename)
 
-    def mkdir(self, directory):
+    def mkdir(self, directory, commandonly=False):
+        if (os.path.exists(directory)):
+            if (not commandonly):
+                self.rmdir(directory, commandonly)
+            else:
+                print("rmdir {0}".format(directory))
         if not os.path.exists(directory):
-            os.makedirs(directory)
+            if (not commandonly):
+                os.makedirs(directory)
+            else:
+                print("mkdir {0}".format(directory))
 
-    def rmdir(self, directory):
+    def rmdir(self, directory, commandonly=False):
         if os.path.exists(directory):
-            shutil.rmtree(directory)
+            if (not commandonly):
+                shutil.rmtree(directory)
 
     def addsuffix(self, fname, suffix):
         justname, extension = os.path.splitext(fname)
@@ -142,50 +147,132 @@ class pyForestLASTools(object):
             options += "-false -compute_min_max"
         self.pylastools.lasgrid(inputfname, outputfname, step, options)
 
-    def tiledlasground(self, inputfname, nextfname, options="", tileoptions="", commandonly=False, verbose=False):
-        temppath = self.outputpath + "temp\\"
-        if (not os.path.exists(temppath)):
-            self.mkdir(temppath)
-        self.pylastools.lastile(inputfname, temppath + os.path.basename(nextfname), tileoptions + " -reversible",
-                                commandonly, verbose)
-        self.pylastools.lasground(temppath + "*.laz", "", "-olaz", commandonly=commandonly, verbose=verbose)
-        self.pylastools.lastile(temppath + "*_1.laz", nextfname, "-reverse_tiling", commandonly, verbose)
-        self.rmdir(temppath)
-
-    def metrics(self, extension="csv", step=20.0,
-                metrics="", options="", tile=False, tileoptions=""):
-        if metrics == "":
-            raise ValueError("It´s mandatory to inform metrics to be calculated.")
+    def prepare2metrics(self, tile=False, tileoptions="", deletetempfiles=False):
         inputfname = self.inputfname
-        outputfname = self.outputpath + os.path.split(os.path.splitext(self.originalfname)[0] + "." + extension)[1]
         nextfname = self.outputpath + self.addsuffix(os.path.split(inputfname)[1], self.denoisedsuffix)
 
         self.pylastools.lasnoise(inputfname, nextfname, "-olaz -remove_noise", self.commandonly, self.verbose)
 
         inputfname = nextfname
-        nextfname = self.addsuffix(inputfname, self.groundsuffix)
-        if (not tile):
-            self.pylastools.lasground(inputfname, nextfname, "-olaz", self.commandonly, self.verbose)
+        if (tile):
+            self.mkdir(self.tempdir, self.commandonly)
+            self.pylastools.lastile(inputfname,
+                                    "{0}{1}".format(self.tempdir, os.path.split(inputfname)[1].replace(".laz", ".las")),
+                                    tileoptions + " -reversible",
+                                    self.commandonly, self.verbose)
+            self.pylastools.lasground(self.tempdir + "*.las", "", " -odix {0}".format(self.groundsuffix),
+                                      commandonly=self.commandonly, verbose=self.verbose)
+            self.pylastools.lasheight(self.tempdir + "*{0}.las".format(self.groundsuffix), "",
+                                      " -store_in_user_data -replace_z -odix {0}".format(self.normsuffix),
+                                      self.commandonly,
+                                      self.verbose)
+            self.pylastools.lasclassify(self.tempdir + "*{0}{1}.las".format(self.groundsuffix, self.normsuffix), "",
+                                        "-odix {0}".format(self.classifysuffix), self.commandonly, self.verbose)
+            self.pylastools.lasclassify(
+                self.tempdir + "*{0}{1}{2}.las".format(self.groundsuffix, self.normsuffix, self.classifysuffix), "",
+                " -change_classification_from_to 1 5 -odix {0}".format(self.changeclassifysuffix), self.commandonly,
+                self.verbose)
+            nextfname = self.addsuffix(self.addsuffix(self.addsuffix(
+                self.addsuffix(self.outputpath + self.addsuffix(os.path.split(self.inputfname)[1], self.denoisedsuffix),
+                               self.groundsuffix), self.normsuffix), self.classifysuffix), self.changeclassifysuffix)
+            self.pylastools.lastile(
+                self.tempdir + "*{0}{1}{2}{3}.las".format(self.groundsuffix, self.normsuffix, self.classifysuffix,
+                                                          self.changeclassifysuffix),
+                nextfname, "-reverse_tiling", self.commandonly, self.verbose)
+            if (deletetempfiles):
+                self.rmdir(self.tempdir)
         else:
-            if (tileoptions == ""):
-                raise ValueError("To use tiling in lasground is necessary to inform valid tileoptions parameter value.")
-            self.tiledlasground(inputfname, nextfname, "-olaz", tileoptions=tileoptions, commandonly=self.commandonly,
-                                verbose=self.verbose)
-        inputfname = nextfname
-        nextfname = self.addsuffix(inputfname, self.normsuffix)
-        self.pylastools.lasheight(inputfname, nextfname, "-olaz -store_in_user_data -replace_z", self.commandonly,
+            nextfname = self.addsuffix(inputfname, self.groundsuffix)
+            self.pylastools.lasground(inputfname, nextfname, "-olaz", self.commandonly, self.verbose)
+
+            inputfname = nextfname
+            nextfname = self.addsuffix(inputfname, self.normsuffix)
+            self.pylastools.lasheight(inputfname, nextfname, "-olaz -store_in_user_data -replace_z", self.commandonly,
                                   self.verbose)
-        inputfname = nextfname
-        nextfname = self.addsuffix(inputfname, self.classifysuffix)
-        self.pylastools.lasclassify(inputfname, nextfname, "-olaz", self.commandonly, self.verbose)
-        inputfname = nextfname
-        nextfname = self.addsuffix(inputfname, self.changeclassifysuffix)
-        self.pylastools.lasclassify(inputfname, nextfname, "-olaz -change_classification_from_to 1 5", self.commandonly,
+            inputfname = nextfname
+            nextfname = self.addsuffix(inputfname, self.classifysuffix)
+            self.pylastools.lasclassify(inputfname, nextfname, "-olaz", self.commandonly, self.verbose)
+
+            inputfname = nextfname
+            nextfname = self.addsuffix(inputfname, self.changeclassifysuffix)
+
+            self.pylastools.lasclassify(inputfname, nextfname, "-olaz -change_classification_from_to 1 5",
+                                        self.commandonly,
                                     self.verbose)
-        # lascanopy -i G:\TRANSECTS\LAZ\metrics\????????????????_ch1_5.laz -odir G:\TRANSECTS\LAZ\metrics\ -step 50.0 -all -min -max -avg -std -ske -kur -qav -p 5 10 20 30 40 50 60 70 80 90 -b 5 10 20 30 40 50 60 70 80 90  -c 0 1 2.5 5.0 7.5 10 15 20 25 30 -d 0 1 2.5 5.0 7.5 10 15 20 25 30  -int_min -int_max -int_avg -int_std -int_ske -int_kur -int_qav -cov -dns -gap -height_cutoff 0.0 -drop_z_below 0.0
+        return nextfname
+
+    def metrics(self, extension="csv", step=20.0,
+                metrics="", options="", tile=False, tileoptions="", deletetempfiles=False, outputsuffix="",
+                prepare=True):
+        if metrics == "":
+            raise ValueError("It´s mandatory to inform metrics to be calculated.")
+
+        if prepare:
+            nextfname = self.prepare2metrics(tile, tileoptions, deletetempfiles, extension)
+        else:
+            nextfname = self.addsuffix(self.addsuffix(self.addsuffix(
+                self.addsuffix(self.outputpath + self.addsuffix(os.path.split(self.inputfname)[1], self.denoisedsuffix),
+                               self.groundsuffix), self.normsuffix), self.classifysuffix), self.changeclassifysuffix)
+        outputfname = "{0}{1}{2}.{3}".format(self.outputpath, os.path.splitext(os.path.basename(self.originalfname))[0],
+                                             outputsuffix, extension)
         self.pylastools.lascanopy(inputfname=nextfname, outputfname=outputfname, step=step,
                                   options="{0} {1}".format(metrics, options), commandonly=self.commandonly,
                                   verbose=self.verbose)
+        return outputfname
+
+    def deletefiles(self, files):
+        for file in files:
+            os.remove(file)
+
+    def getmaxz(self, fname):
+        inFile = file.File(fname, mode="r")
+        return inFile.z.max()
+
+    def verticalmetrics(self, extension="csv",
+                        metrics="", options="", tile=False, tileoptions="", deletetempfiles=False, outputsuffix="",
+                        height=5.0, prepare=True):
+        if metrics == "":
+            raise ValueError("It´s mandatory to inform metrics to be calculated.")
+        if prepare:
+            nextfname = self.prepare2metrics(tile, tileoptions, deletetempfiles, extension)
+        else:
+            nextfname = self.addsuffix(self.addsuffix(self.addsuffix(
+                self.addsuffix(self.outputpath + self.addsuffix(os.path.split(self.inputfname)[1], self.denoisedsuffix),
+                               self.groundsuffix), self.normsuffix), self.classifysuffix), self.changeclassifysuffix)
+
+        zinf = 0.0
+        zsup = height
+        #        zmax=63
+        zmax = self.getmaxz(nextfname)
+        firstfile = True
+        mergedfname = '{0}{1}{2}.{3}'.format(self.outputpath, os.path.splitext(os.path.basename(self.originalfname))[0],
+                                             'vertmetrics', extension)
+        mergedfile = None
+        outputfiles = []
+        while (zinf <= zmax):
+            outputfile = self.metrics(extension, step=-1.0, metrics=metrics,
+                                      options='{0} -keep_z {1} {2}'.format(options, zinf, zsup), tile=tile,
+                                      tileoptions=tileoptions, deletetempfiles=deletetempfiles,
+                                      outputsuffix="h_{0:05.1f}_{1:05.1f}m".format(zinf, zsup), prepare=False)
+            outputfiles.append(outputfile)
+            if firstfile:
+                shutil.copy(outputfile, mergedfname)
+                mergedfile = open(mergedfname, 'a')
+                firstfile = False
+            else:
+                data = False
+                for line in open(outputfile):
+                    if data:
+                        mergedfile.write(line)
+                    else:
+                        data = True
+            zinf += height
+            zsup += height
+        self.deletefiles(outputfiles)
+        mergedfile.close()
+
+    def updateLASFile(self, inputfname, outputfname="", options="", commandonly=False, verbose=False):
+        return self.pylastools.lasinfo(inputfname, outputfname, options, commandonly, verbose)
 
     def clear(self):
         if (self.tempdir == ""):
